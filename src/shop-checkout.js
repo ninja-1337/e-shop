@@ -1,14 +1,14 @@
-import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
-import '@polymer/app-route/app-route.js';
-import '@polymer/iron-flex-layout/iron-flex-layout.js';
-import './shop-button.js';
-import './shop-common-styles.js';
-import './shop-form-styles.js';
-import './shop-input.js';
-import './shop-select.js';
-import './shop-checkbox.js';
-import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
-import { timeOut } from '@polymer/polymer/lib/utils/async.js';
+import { PolymerElement, html } from "@polymer/polymer/polymer-element.js";
+import "@polymer/app-route/app-route.js";
+import "@polymer/iron-flex-layout/iron-flex-layout.js";
+import "./shop-button.js";
+import "./shop-common-styles.js";
+import "./shop-form-styles.js";
+import "./shop-input.js";
+import "./shop-select.js";
+import "./shop-checkbox.js";
+import { Debouncer } from "@polymer/polymer/lib/utils/debounce.js";
+import { timeOut } from "@polymer/polymer/lib/utils/async.js";
 
 class ShopCheckout extends PolymerElement {
   static get template() {
@@ -410,84 +410,87 @@ class ShopCheckout extends PolymerElement {
     <paper-spinner-lite active="[[waiting]]"></paper-spinner-lite>
     `;
   }
-  static get is() { return 'shop-checkout'; }
+  static get is() {
+    return "shop-checkout";
+  }
 
-  static get properties() { return {
+  static get properties() {
+    return {
+      /**
+       * The route for the state. e.g. `success` and `error` are mounted in the
+       * `checkout/` route.
+       */
+      route: {
+        type: Object,
+        notify: true,
+      },
 
-    /**
-     * The route for the state. e.g. `success` and `error` are mounted in the
-     * `checkout/` route.
-     */
-    route: {
-      type: Object,
-      notify: true
-    },
+      /**
+       * The total price of the contents in the user's cart.
+       */
+      total: Number,
 
-    /**
-     * The total price of the contents in the user's cart.
-     */
-    total: Number,
+      /**
+       * The state of the form. Valid values are:
+       * `init`, `success` and `error`.
+       */
+      state: {
+        type: String,
+        value: "init",
+      },
 
-    /**
-     * The state of the form. Valid values are:
-     * `init`, `success` and `error`.
-     */
-    state: {
-      type: String,
-      value: 'init'
-    },
+      /**
+       * An array containing the items in the cart.
+       */
+      cart: Array,
 
-    /**
-     * An array containing the items in the cart.
-     */
-    cart: Array,
+      /**
+       * The server's response.
+       */
+      response: Object,
 
-    /**
-     * The server's response.
-     */
-    response: Object,
+      /**
+       * If true, the user must enter a billing address.
+       */
+      hasBillingAddress: {
+        type: Boolean,
+        value: false,
+      },
 
-    /**
-     * If true, the user must enter a billing address.
-     */
-    hasBillingAddress: {
-      type: Boolean,
-      value: false
-    },
+      /**
+       * If true, shop-checkout is currently visible on the screen.
+       */
+      visible: {
+        type: Boolean,
+        observer: "_visibleChanged",
+      },
 
-    /**
-     * If true, shop-checkout is currently visible on the screen.
-     */
-    visible: {
-      type: Boolean,
-      observer: '_visibleChanged'
-    },
+      /**
+       * True when waiting for the server to repond.
+       */
+      waiting: {
+        type: Boolean,
+        readOnly: true,
+        reflectToAttribute: true,
+      },
 
-    /**
-     * True when waiting for the server to repond.
-     */
-    waiting: {
-      type: Boolean,
-      readOnly: true,
-      reflectToAttribute: true
-    },
+      /**
+       * True when waiting for the server to repond.
+       */
+      _hasItems: {
+        type: Boolean,
+        computed: "_computeHasItem(cart.length)",
+      },
+    };
+  }
 
-    /**
-     * True when waiting for the server to repond.
-     */
-    _hasItems: {
-      type: Boolean,
-      computed: '_computeHasItem(cart.length)'
-    }
-
-  }}
-
-  static get observers() { return [
-    '_updateState(routeActive, routeData)'
-  ]}
+  static get observers() {
+    return ["_updateState(routeActive, routeData)"];
+  }
 
   _submit(e) {
     if (this._validateForm()) {
+      console.log("damesa");
       fetch("http://localhost:3000/create-checkout-session", {
         method: "POST",
         headers: {
@@ -500,16 +503,16 @@ class ShopCheckout extends PolymerElement {
           ],
         }),
       })
-        .then(res => {
-          if (res.ok) return res.json()
-          return res.json().then(json => Promise.reject(json))
+        .then((res) => {
+          if (res.ok) return res.json();
+          return res.json().then((json) => Promise.reject(json));
         })
         .then(({ url }) => {
-          window.location = url
+          window.location = url;
         })
-        .catch(e => {
-          console.error(e.error)
-        })
+        .catch((e) => {
+          console.error(e.error);
+        });
     }
   }
 
@@ -518,7 +521,7 @@ class ShopCheckout extends PolymerElement {
    */
   _pushState(state) {
     this._validState = state;
-    this.set('route.path', state);
+    this.set("route.path", state);
   }
 
   /**
@@ -531,11 +534,11 @@ class ShopCheckout extends PolymerElement {
       let state = routeData.state;
       if (this._validState === state) {
         this.state = state;
-        this._validState = '';
+        this._validState = "";
         return;
       }
     }
-    this.state = 'init';
+    this.state = "init";
   }
 
   /**
@@ -553,8 +556,12 @@ class ShopCheckout extends PolymerElement {
     }
 
     // Remove the `aria-invalid` attribute from the form inputs.
-    for (let el, i = 0; el = nativeForm.elements[i], i < nativeForm.elements.length; i++) {
-      el.removeAttribute('aria-invalid');
+    for (
+      let el, i = 0;
+      (el = nativeForm.elements[i]), i < nativeForm.elements.length;
+      i++
+    ) {
+      el.removeAttribute("aria-invalid");
     }
   }
 
@@ -567,15 +574,24 @@ class ShopCheckout extends PolymerElement {
     let firstInvalid = false;
     let nativeForm = form._form;
 
-    for (let el, i = 0; el = nativeForm.elements[i], i < nativeForm.elements.length; i++) {
+    for (
+      let el, i = 0;
+      (el = nativeForm.elements[i]), i < nativeForm.elements.length;
+      i++
+    ) {
       if (el.checkValidity()) {
-        el.removeAttribute('aria-invalid');
+        el.removeAttribute("aria-invalid");
       } else {
         if (!firstInvalid) {
           // announce error message
           if (el.nextElementSibling) {
-            this.dispatchEvent(new CustomEvent('announce', {bubbles: true, composed: true,
-              detail: el.nextElementSibling.getAttribute('error-message')}));
+            this.dispatchEvent(
+              new CustomEvent("announce", {
+                bubbles: true,
+                composed: true,
+                detail: el.nextElementSibling.getAttribute("error-message"),
+              })
+            );
           }
           if (el.scrollIntoViewIfNeeded) {
             // safari, chrome
@@ -587,7 +603,7 @@ class ShopCheckout extends PolymerElement {
           el.focus();
           firstInvalid = true;
         }
-        el.setAttribute('aria-invalid', 'true');
+        el.setAttribute("aria-invalid", "true");
       }
     }
     return !firstInvalid;
@@ -628,11 +644,13 @@ class ShopCheckout extends PolymerElement {
     this._setWaiting(true);
 
     if (response.success) {
-      this._pushState('success');
+      this._pushState("success");
       this._reset();
-      this.dispatchEvent(new CustomEvent('clear-cart', {bubbles: true, composed: true}));
+      this.dispatchEvent(
+        new CustomEvent("clear-cart", { bubbles: true, composed: true })
+      );
     } else {
-      this._pushState('error');
+      this._pushState("error");
     }
   }
 
@@ -649,7 +667,7 @@ class ShopCheckout extends PolymerElement {
   }
 
   _formatPrice(total) {
-    return isNaN(total) ? '' : '$' + total.toFixed(2);
+    return isNaN(total) ? "" : "$" + total.toFixed(2);
   }
 
   _getEntryTotal(entry) {
@@ -663,10 +681,14 @@ class ShopCheckout extends PolymerElement {
     // Reset the UI states
     this._reset();
     // Notify the page's title
-    this.dispatchEvent(new CustomEvent('change-section', {
-      bubbles: true, composed: true, detail: { title: 'Checkout' }}));
+    this.dispatchEvent(
+      new CustomEvent("change-section", {
+        bubbles: true,
+        composed: true,
+        detail: { title: "Checkout" },
+      })
+    );
   }
-
 }
 
 customElements.define(ShopCheckout.is, ShopCheckout);
