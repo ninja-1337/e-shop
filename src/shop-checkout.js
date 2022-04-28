@@ -196,8 +196,8 @@ class ShopCheckout extends PolymerElement {
                     <shop-select>
                       <select id="shipCountry" name="shipCountry" required
                           aria-labelledby="shipCountryLabel shipAddressHeading">
-                        <option value="US" selected>United States</option>
-                        <option value="CA">Canada</option>
+                        <option value="EU" selected>Europe</option>
+                        <option value="CY">Cyprus</option>
                       </select>
                       <shop-md-decorator aria-hidden="true">
                         <shop-underline></shop-underline>
@@ -266,8 +266,8 @@ class ShopCheckout extends PolymerElement {
                         <select id="billCountry" name="billCountry" required$="[[hasBillingAddress]]"
                             autocomplete="billing country"
                             aria-labelledby="billCountryLabel billAddressHeading">
-                          <option value="US" selected>United States</option>
-                          <option value="CA">Canada</option>
+                          <option value="EU" selected>Europe</option>
+                          <option value="CY">Cyprus</option>
                         </select>
                         <shop-md-decorator aria-hidden="true">
                           <shop-underline></shop-underline>
@@ -488,25 +488,28 @@ class ShopCheckout extends PolymerElement {
 
   _submit(e) {
     if (this._validateForm()) {
-      // To send the form data to the server:
-      // 2) Remove the code below.
-      // 3) Uncomment `this.$.checkoutForm.submit()`.
-
-      this.$.checkoutForm.dispatchEvent(new CustomEvent('iron-form-presubmit', {
-        composed: true}));
-
-      this._submitFormDebouncer = Debouncer.debounce(this._submitFormDebouncer,
-        timeOut.after(1000), () => {
-          this.$.checkoutForm.dispatchEvent(new CustomEvent('iron-form-response', {
-            composed: true, detail: {
-              response: {
-                success: 1,
-                successMessage: 'Demo checkout process complete.'
-              }
-            }}));
-        });
-
-      // this.$.checkoutForm.submit();
+      fetch("http://localhost:3000/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: [
+            { id: 1, quantity: 3 },
+            { id: 2, quantity: 1 },
+          ],
+        }),
+      })
+        .then(res => {
+          if (res.ok) return res.json()
+          return res.json().then(json => Promise.reject(json))
+        })
+        .then(({ url }) => {
+          window.location = url
+        })
+        .catch(e => {
+          console.error(e.error)
+        })
     }
   }
 
